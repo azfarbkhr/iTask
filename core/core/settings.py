@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7eph!ikr^%0jm+whu)9*ctk5&n!-gt$6+4o#z^g%5$pfcaw_$w'
+SECRET_KEY = 'django-insecure-^rufn3$6#mq#1awam))2g@tki&)j7+pj$=^ztsm0d8oks@ap6f'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'iTask.apps.ItaskConfig',
+    'admin_reorder',
+    'itask.apps.ItaskConfig',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +48,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'admin_reorder.middleware.ModelAdminReorder',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -122,3 +124,34 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+ADMIN_REORDER = (
+    # Exclude models
+    {
+        'app': 'auth',
+        'label': 'User Management',
+        'models': ('auth.User', 'auth.Group', 'itask.contributors'),
+    },
+    {
+        'app': 'itask',
+        'label': 'Task Management',
+        'models': (
+            'itask.plans', 
+        )
+    },
+    {
+        'app': 'itask',
+        'label': 'Meetings Management',
+        'models': (
+            'itask.meetings', 
+        )
+    },
+    {
+        'app': 'itask',
+        'label': 'Performance Management',
+        'models': (
+            'itask.contributors_performance_scores', 
+        )
+    },
+)
