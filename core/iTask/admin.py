@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import contributors, clients, projects, activities, completion_statuses, priorities, tasks, plans, plans_tasks, point_types, meetings, meetings_attendees, meetings_points, contributors_performance_scores
+from .models import contributors, clients, projects, activities, completion_statuses, priorities, tasks, point_types, meetings, meetings_attendees, meetings_points, contributors_performance_scores
 
 admin.site.site_header = 'iTask Administration'
 admin.site.site_title = 'iTask Administration'
@@ -54,39 +54,31 @@ admin.site.register(priorities,
     ordering=['sort_id']
 )
 
+# tasks_types = models.CharField(max_length=255, choices=tasks_types, default='single_task')
+#     date = models.DateTimeField(default=now)
+#     activity_id = models.ForeignKey(activities, on_delete=models.CASCADE, null=True, blank=True)
+#     priority_id = models.ForeignKey(priorities, on_delete=models.CASCADE)
+#     assigned_to_contributor_id = models.ForeignKey(contributors, on_delete=models.CASCADE, null=True)
+#     name = models.CharField(max_length=255)
+#     business_value = models.IntegerField(null=True, blank=True)
+#     completion_status_id = models.ForeignKey(completion_statuses, on_delete=models.CASCADE)
+#     completed_by_contibutor_id = models.ForeignKey(contributors, on_delete=models.CASCADE, null=True, blank=True)
+#     completed_date = models.DateTimeField(null=True, blank=True)
+#     retro_remarks = models.CharField(max_length=255, null=True, blank=True)
+#     client_id = models.ForeignKey(clients, on_delete=models.CASCADE, null=True, blank=True)
+#     project_id = models.ForeignKey(projects, on_delete=models.CASCADE, null=True, blank=True)
+#     status = models.BooleanField(default=True)
+#     creation_date = models.DateTimeField(auto_now_add=True)
+#     last_update_date = models.DateTimeField(auto_now=True)
+
+
 admin.site.register(tasks,
-    list_display=['id', 'tasks_types', 'date', 'activity_id', 'name', 'business_value', 'completion_status_id', 'completed_by_contibutor_id', 'client_id', 'project_id', 'status', 'creation_date', 'last_update_date'],
-    list_display_links=['id', 'tasks_types', 'date', 'activity_id', 'name', 'business_value', 'completion_status_id', 'completed_by_contibutor_id', 'client_id', 'project_id', 'status', 'creation_date', 'last_update_date'],
-    list_filter=['tasks_types', 'date', 'activity_id', 'completion_status_id', 'completed_by_contibutor_id', 'client_id', 'project_id', 'status', 'creation_date', 'last_update_date'],
+    list_display=['date', 'activity_id', 'priority_id', 'assigned_to_contributor_id', 'name', 'business_value', 'completion_status_id', 'completed_by_contibutor_id', 'completed_date', 'retro_remarks', 'client_id', 'project_id', 'status', 'creation_date', 'last_update_date'],
+    list_display_links=['date', 'activity_id', 'priority_id', 'assigned_to_contributor_id', 'name', 'business_value', 'completion_status_id', 'completed_by_contibutor_id', 'completed_date', 'retro_remarks', 'client_id', 'project_id', 'status', 'creation_date', 'last_update_date'],
+    list_filter=['date', 'activity_id', 'priority_id', 'assigned_to_contributor_id', 'completion_status_id',  'completed_date', 'client_id', 'project_id', 'status', 'creation_date', 'last_update_date'],
     search_fields=['name'],
     ordering=['id']
 )
-
-
-# class tasks_inline(admin.TabularInline):
-#     model = tasks
-
-
-# class plans_admin(admin.ModelAdmin):
-#     inlines = [tasks_inline]
-
-admin.site.register(plans, 
-    list_display=['id', 'name', 'period_start', 'period_end', 'status', 'creation_date', 'last_update_date'],
-    list_display_links=['id', 'name', 'period_start', 'period_end', 'status', 'creation_date', 'last_update_date'],
-    list_filter=['status', 'creation_date', 'last_update_date'],
-    search_fields=['name'],
-    ordering=['period_start']
-)
-
-
-admin.site.register(plans_tasks,
-    list_display=['id', 'task_id', 'plan_id', 'priority_id', 'assigned_to_contributor_id', 'completion_status_id', 'retro_remarks', 'creation_date', 'last_update_date'],
-    list_display_links=['id', 'task_id', 'plan_id', 'priority_id', 'assigned_to_contributor_id', 'completion_status_id', 'retro_remarks', 'creation_date', 'last_update_date'],
-    list_filter=['task_id', 'plan_id', 'priority_id', 'assigned_to_contributor_id', 'completion_status_id', 'creation_date', 'last_update_date'],
-    search_fields=['retro_remarks'],
-    ordering=['plan_id', 'task_id', 'id']
-)
-
 
 admin.site.register(point_types,
     list_display=['id', 'name', 'description', 'sort_id', 'status', 'creation_date', 'last_update_date'],
@@ -95,7 +87,6 @@ admin.site.register(point_types,
     search_fields=['name'],
     ordering=['sort_id']
 )
-
 
 class meeting_attendees_inline(admin.TabularInline):
     model = meetings_attendees
@@ -112,7 +103,7 @@ class meeting_header(admin.ModelAdmin):
 admin.site.register(meetings, meeting_header, 
     list_display=['id', 'client_id', 'project_id', 'start_date', 'end_date', 'title', 'status', 'creation_date', 'last_update_date'],
     list_display_links=['id', 'client_id', 'project_id', 'start_date', 'end_date', 'title', 'status', 'creation_date', 'last_update_date'],
-    list_filter=['clisent_id', 'project_id', 'start_date', 'end_date', 'status', 'creation_date', 'last_update_date'],
+    list_filter=['client_id', 'project_id', 'start_date', 'end_date', 'status', 'creation_date', 'last_update_date'],
     search_fields=['title'],
     ordering=['start_date']
 )
