@@ -70,7 +70,7 @@ class completion_statuses(models.Model):
     last_update_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return str(self.sort_id) + " - " + self.name
+        return self.name
     
     class Meta:
         verbose_name_plural = "Completion Statuses"
@@ -113,18 +113,18 @@ class tasks(models.Model):
         ('long_term_goal', 'Long Term Goal'),
     )
     tasks_types = models.CharField(max_length=255, choices=tasks_types, default='single_task')
-    date = models.DateTimeField(default=now)
-    activity_id = models.ForeignKey(activities, on_delete=models.CASCADE, null=True, blank=True)
-    priority_id = models.ForeignKey(priorities, on_delete=models.CASCADE)
-    assigned_to_contributor_id = models.ForeignKey(contributors, on_delete=models.CASCADE, null=True, blank=True, related_name='assigned_to_contributor_id')
-    name = models.CharField(max_length=255)
-    business_value = models.IntegerField(null=True, blank=True)
-    completion_status_id = models.ForeignKey(completion_statuses, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=now, verbose_name="Planning Date")
+    activity_id = models.ForeignKey(activities, on_delete=models.CASCADE, null=True, blank=True, default=7)
+    priority_id = models.ForeignKey(priorities, on_delete=models.CASCADE, default=2)
+    assigned_to_contributor_id = models.ForeignKey(contributors, on_delete=models.CASCADE, null=True, blank=True, related_name='assigned_to_contributor_id', default=1)
+    name = models.CharField(max_length=1500, default="To be defined", verbose_name="Task title")
+    business_value = models.IntegerField(null=True, blank=True, default=0)
+    completion_status_id = models.ForeignKey(completion_statuses, on_delete=models.CASCADE, default=1)
     completed_by_contibutor_id = models.ForeignKey(contributors, on_delete=models.CASCADE, null=True, blank=True, related_name='completed_by_contibutor_id')
     completed_date = models.DateTimeField(null=True, blank=True)
     retro_remarks = models.CharField(max_length=255, null=True, blank=True)
-    client_id = models.ForeignKey(clients, on_delete=models.CASCADE, null=True, blank=True)
-    project_id = models.ForeignKey(projects, on_delete=models.CASCADE, null=True, blank=True)
+    client_id = models.ForeignKey(clients, on_delete=models.CASCADE, null=True, blank=True, default=1)
+    project_id = models.ForeignKey(projects, on_delete=models.CASCADE, null=True, blank=True, default=1)
     status = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     last_update_date = models.DateTimeField(auto_now=True)

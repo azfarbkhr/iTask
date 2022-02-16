@@ -1,5 +1,8 @@
+from urllib import response
 from django.contrib import admin
 from .models import contributors, clients, projects, activities, completion_statuses, priorities, tasks, point_types, meetings, meetings_attendees, meetings_points, contributors_performance_scores
+from datetime import datetime
+from django.http import HttpResponse
 
 admin.site.site_header = 'iTask Administration'
 admin.site.site_title = 'iTask Administration'
@@ -54,29 +57,42 @@ admin.site.register(priorities,
     ordering=['sort_id']
 )
 
-# tasks_types = models.CharField(max_length=255, choices=tasks_types, default='single_task')
-#     date = models.DateTimeField(default=now)
-#     activity_id = models.ForeignKey(activities, on_delete=models.CASCADE, null=True, blank=True)
-#     priority_id = models.ForeignKey(priorities, on_delete=models.CASCADE)
-#     assigned_to_contributor_id = models.ForeignKey(contributors, on_delete=models.CASCADE, null=True)
-#     name = models.CharField(max_length=255)
-#     business_value = models.IntegerField(null=True, blank=True)
-#     completion_status_id = models.ForeignKey(completion_statuses, on_delete=models.CASCADE)
-#     completed_by_contibutor_id = models.ForeignKey(contributors, on_delete=models.CASCADE, null=True, blank=True)
-#     completed_date = models.DateTimeField(null=True, blank=True)
-#     retro_remarks = models.CharField(max_length=255, null=True, blank=True)
-#     client_id = models.ForeignKey(clients, on_delete=models.CASCADE, null=True, blank=True)
-#     project_id = models.ForeignKey(projects, on_delete=models.CASCADE, null=True, blank=True)
-#     status = models.BooleanField(default=True)
-#     creation_date = models.DateTimeField(auto_now_add=True)
-#     last_update_date = models.DateTimeField(auto_now=True)
+class TasksAdmin(admin.ModelAdmin):
+    readonly_fields = ('creation_date', 'last_update_date', 'id')
+    fieldsets = (
+        (None, {
+            'fields': ('id',( 'tasks_types', 'completion_status_id'), ('name', 'assigned_to_contributor_id'), )
+        }), 
+        ('Important Dates', {
+            'fields': (('date', 'creation_date', 'last_update_date'),)
+        }),
+        ('Planning', {
+            'fields': (('activity_id', 'priority_id', 'business_value'), ('client_id', 'project_id'))
+
+        }),
+        ('Completion Fields', {
+            'fields': (('completed_by_contibutor_id', 'completed_date', 'retro_remarks'), )
+        })
+    )
+    
+
+@admin.action(description='Mark selected tasks as completed')
+def mark_completed(modeladmin, request, queryset):
+    queryset.update(completion_status_id=5, completed_by_contibutor_id=1, completed_date=datetime.now())
 
 
-admin.site.register(tasks,
-    list_display=['date', 'activity_id', 'priority_id', 'assigned_to_contributor_id', 'name', 'business_value', 'completion_status_id', 'completed_by_contibutor_id', 'completed_date', 'retro_remarks', 'client_id', 'project_id', 'status', 'creation_date', 'last_update_date'],
-    list_display_links=['date', 'activity_id', 'priority_id', 'assigned_to_contributor_id', 'name', 'business_value', 'completion_status_id', 'completed_by_contibutor_id', 'completed_date', 'retro_remarks', 'client_id', 'project_id', 'status', 'creation_date', 'last_update_date'],
-    list_filter=['date', 'activity_id', 'priority_id', 'assigned_to_contributor_id', 'completion_status_id',  'completed_date', 'client_id', 'project_id', 'status', 'creation_date', 'last_update_date'],
+@admin.action(description="Mark selected tasks for today")
+def mark_today(modeladmin, request, queryset):
+    queryset.update(date=datetime.now())
+
+
+admin.site.register(tasks,TasksAdmin, 
+    list_display=['date', 'priority_id', 'name', 'completion_status_id','completed_date', 'project_id'],
+    list_display_links=['priority_id', 'name','completion_status_id','completed_date', 'project_id'],
+    list_editable=['date'],
+    list_filter=['date', 'priority_id', 'completion_status_id', 'client_id', 'completed_date'],
     search_fields=['name'],
+    actions = [mark_completed, mark_today],
     ordering=['id']
 )
 
@@ -100,11 +116,49 @@ class meeting_header(admin.ModelAdmin):
         meeting_points_inline
     ]
 
+@admin.action(description='Download minutes for selected meetings')
+def download_minutes(modeladmin, request, queryset):
+
+    minutes_txt = ""
+    for meeting in queryset:
+        
+        attendees = ""
+        for attendee in meeting.meetings_attendees_set.all().values('contributor_id__full_name'):
+            attendees += attendee['contributor_id__full_name'] + ", "
+        
+        points = ""
+        for point in meeting.meetings_points_set.all().values('point_type_id__name', 'related_contributor_id__full_name', 'description'):
+            points += (point['point_type_id__name'] or "") + \
+                            " - " + (point['related_contributor_id__full_name'] or "") + " - " + \
+                                point['description'] + "\n\t\t"
+
+
+        minute_txt = f"""
+        {"#" * 10}
+        Meeting Title: {meeting.title}
+        Start Time: {meeting.start_date}
+        End Time: {meeting.end_date}
+        Meeting Attendees:
+        - {attendees}
+
+        Meeting Points:
+        {points}
+        {"#" * 10}
+        """
+        minutes_txt += minute_txt
+    response = HttpResponse(content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename="minutes.txt"'
+    response.write(minutes_txt)
+    return response
+
+
+
 admin.site.register(meetings, meeting_header, 
-    list_display=['id', 'client_id', 'project_id', 'start_date', 'end_date', 'title', 'status', 'creation_date', 'last_update_date'],
-    list_display_links=['id', 'client_id', 'project_id', 'start_date', 'end_date', 'title', 'status', 'creation_date', 'last_update_date'],
+    list_display=['id', 'title', 'start_date','project_id', ],
+    list_display_links=['id', 'title', 'start_date','project_id', ],
     list_filter=['client_id', 'project_id', 'start_date', 'end_date', 'status', 'creation_date', 'last_update_date'],
     search_fields=['title'],
+    actions = [download_minutes],
     ordering=['start_date']
 )
 
@@ -118,8 +172,8 @@ admin.site.register(meetings_attendees,
 
 
 admin.site.register(meetings_points,
-    list_display=['id', 'meeting_id', 'description', 'related_contributor_id', 'point_type', 'status', 'creation_date', 'last_update_date'],
-    list_display_links=['id', 'meeting_id', 'description', 'related_contributor_id', 'point_type', 'status', 'creation_date', 'last_update_date'],
+    list_display=['id', 'meeting_id', 'description', 'related_contributor_id', 'point_type', ],
+    list_display_links=['id', 'meeting_id', 'description', 'related_contributor_id', 'point_type',],
     list_filter=['meeting_id', 'point_type', 'status', 'creation_date', 'last_update_date'],
     search_fields=['description'],
     ordering=['meeting_id', 'id']
