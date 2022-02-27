@@ -1,6 +1,6 @@
 from urllib import response
 from django.contrib import admin
-from .models import contributors, clients, projects, activities, completion_statuses, priorities, tasks, point_types, meetings, meetings_attendees, meetings_points, contributors_performance_scores
+from .models import contributors, clients, projects, activities, completion_statuses, priorities, tasks, point_types, meetings, meetings_attendees, meetings_points, contributors_performance_scores, interview_notes, interview_questions, default_interview_questions
 from datetime import datetime
 from django.http import HttpResponse
 
@@ -88,8 +88,8 @@ def mark_today(modeladmin, request, queryset):
 
 admin.site.register(tasks,TasksAdmin, 
     list_display=['date', 'priority_id', 'name', 'completion_status_id','completed_date', 'project_id'],
-    list_display_links=['priority_id', 'name','completion_status_id','completed_date', 'project_id'],
-    list_editable=['date'],
+    list_display_links=['priority_id', 'name','completed_date', 'project_id'],
+    list_editable=['date', 'completion_status_id'],
     list_filter=['date', 'priority_id', 'completion_status_id', 'client_id', 'completed_date'],
     search_fields=['name'],
     actions = [mark_completed, mark_today],
@@ -151,15 +151,13 @@ def download_minutes(modeladmin, request, queryset):
     response.write(minutes_txt)
     return response
 
-
-
 admin.site.register(meetings, meeting_header, 
     list_display=['id', 'title', 'start_date','project_id', ],
     list_display_links=['id', 'title', 'start_date','project_id', ],
     list_filter=['client_id', 'project_id', 'start_date', 'end_date', 'status', 'creation_date', 'last_update_date'],
     search_fields=['title'],
     actions = [download_minutes],
-    ordering=['start_date']
+    ordering=['-start_date']
 )
 
 admin.site.register(meetings_attendees,
@@ -185,4 +183,55 @@ admin.site.register(contributors_performance_scores,
     list_filter=['contributor_id', 'date', 'activity_id', 'status', 'creation_date', 'last_update_date'],
     search_fields=['remarks'],
     ordering=['contributor_id', 'date']
+)
+
+
+admin.site.register(default_interview_questions,
+    list_display=['id', 'question', 'status'],
+    list_display_links=['id'],
+    editable_fields=['question', 'status'],
+    list_filter=['status'],
+    search_fields=['question'],
+    ordering=['id']
+)
+
+
+class interview_questions_inline(admin.TabularInline):
+    model = interview_questions
+
+class interview_header(admin.ModelAdmin):
+    inlines = [
+        interview_questions_inline,
+    ]
+
+def download_notes(modeladmin, request, queryset):
+    notes_txt = ""
+    questions_txt = ""
+    for interview in queryset:
+        for question in interview.interview_questions_set.all().values('question', 'answer'):
+            questions_txt += question['question'] + "? (" + question['answer'] + ")\n\t\t"
+
+        notes_txt += f"""
+        {"#" * 10}
+        Candidate: {interview.candidate_name}
+        Date: {interview.interview_date}
+        Questions:
+        {questions_txt}
+        Remarks: {interview.interview_remarks}
+        Conclusion: {interview.interview_status}
+        {"#" * 10}
+        """
+    response = HttpResponse(content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename="notes.txt"'
+    response.write(notes_txt)
+    return response
+
+admin.site.register(interview_notes, interview_header,
+    list_display= ['id', 'project_id', 'candidate_name',  'designation_applied',  'interview_date', 'interview_status', 'interview_remarks', 'interview_score'],
+    list_display_links=['id', 'project_id', 'candidate_name',  'designation_applied',  'interview_date', 'interview_status', 'interview_remarks', 'interview_score'],
+    list_filter=['project_id', 'designation_applied',  'interview_date', 'interview_status'],
+    search_fields=['candidate_name',  'designation_applied',  'interview_date', 'interview_status', 'interview_remarks', 'interview_score'],
+    ordering=['id'],
+    actions = [download_notes]
+
 )

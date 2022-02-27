@@ -137,23 +137,13 @@ ADMIN_REORDER = (
     },
     {
         'app': 'itask',
-        'label': 'Task Management',
+        'label': 'iTask',
         'models': (
-            'itask.plans', 'itask.tasks'
-        )
-    },
-    {
-        'app': 'itask',
-        'label': 'Meetings Management',
-        'models': (
+            'itask.plans', 
+            'itask.tasks', 
             'itask.meetings', 
-        )
-    },
-    {
-        'app': 'itask',
-        'label': 'Performance Management',
-        'models': (
             'itask.contributors_performance_scores', 
+            'itask.interview_notes'
         )
-    },
+    }
 )

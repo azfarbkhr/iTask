@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.timezone import now
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from matplotlib.pyplot import cla
 
 # core
 class contributors(models.Model):
@@ -203,3 +204,66 @@ class contributors_performance_scores(models.Model):
     class Meta:
         verbose_name_plural = "Performance Scores"
         verbose_name = "Performance Score"
+
+# interviews management module 
+# To prepare an interview notes module. 
+# - The user should be able to add details about the interview like candidate name, client and etc. 
+# - The user should be able to post notes for an interview 
+# - The user should see a list of pre-defined questions 
+# - The user should be able to specify recommendation status 
+# - The user should be able to specify recommendation comments
+# - The user should be able to specify recommendation score
+
+class interview_notes(models.Model):
+    client_id = models.ForeignKey(clients, on_delete=models.CASCADE, null=True)
+    project_id = models.ForeignKey(projects, on_delete=models.CASCADE, null=True)
+    candidate_name = models.CharField(max_length=255, null=True, blank=True)
+    candidate_email = models.CharField(max_length=255, null=True, blank=True)
+    candidate_phone = models.CharField(max_length=255, null=True, blank=True)
+    designation_applied = models.CharField(max_length=255)
+    candidate_location = models.CharField(max_length=255, null=True, blank=True)
+    candidate_experience = models.CharField(max_length=255, null=True, blank=True)
+    candidate_resume = models.FileField(upload_to='itask/resumes/', null=True, blank=True)
+    interview_date = models.DateTimeField(default=now)
+    interview_status = models.CharField(max_length=255, null=True, blank=True)
+    interview_remarks = models.CharField(max_length=255, null=True, blank=True)
+    interview_score = models.IntegerField(null=True, blank=True)
+    status = models.BooleanField(default=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    last_update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.candidate_name + self.designation_applied + " - " + str(self.interview_date)
+
+    class Meta:
+        verbose_name_plural = "Interview Notes"
+        verbose_name = "Interview Note"
+
+class interview_questions(models.Model):
+    interview = models.ForeignKey(interview_notes, on_delete=models.CASCADE)
+    question = models.CharField(max_length=255, null=True, blank=True)
+    answer = models.CharField(max_length=255, null=True, blank=True)
+    score = models.IntegerField(null=True, blank=True)
+    status = models.BooleanField(default=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    last_update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.question
+    
+    class Meta:
+        verbose_name_plural = "Interview Questions"
+        verbose_name = "Interview Question"
+
+class default_interview_questions(models.Model):
+    question = models.CharField(max_length=255, null=True, blank=True)
+    status = models.BooleanField(default=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    last_update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.question
+    
+    class Meta:
+        verbose_name_plural = "Default Interview Questions"
+        verbose_name = "Default Interview Question"
