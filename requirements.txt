@@ -4,3 +4,4 @@ requests==2.25.1
 gunicorn
 django-heroku
 django-admin-interface
+django-modeladmin-reorder
