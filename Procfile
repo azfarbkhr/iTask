@@ -1,1 +1,1 @@
-web: gunicorn iTask.wsgi
+web: gunicorn core.wsgi
