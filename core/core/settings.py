@@ -150,4 +150,7 @@ ADMIN_REORDER = (
     }
 )
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 django_heroku.settings(locals())
+
