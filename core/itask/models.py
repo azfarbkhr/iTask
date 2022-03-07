@@ -192,7 +192,7 @@ class contributors_performance_scores(models.Model):
     contributor_id = models.ForeignKey(contributors, on_delete=models.CASCADE)
     date = models.DateTimeField(default=now)
     activity_id = models.ForeignKey(activities, on_delete=models.CASCADE)
-    remarks = models.CharField(max_length=255, null=True, blank=True)
+    remarks = models.CharField(max_length=255)
     score = models.FloatField()
     status = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)
