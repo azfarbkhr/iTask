@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'admin_reorder',
     'itask',
+    'habbit_tracking.apps.HabbitTrackingConfig',
 ]
 
 MIDDLEWARE = [
@@ -146,6 +147,13 @@ ADMIN_REORDER = (
             'itask.meetings', 
             'itask.contributors_performance_scores', 
             'itask.interview_notes'
+        )
+    },
+    {
+        'app': 'habbit_tracking',
+        'label': 'Habbit Tracking',
+        'models': (
+            'habbit_tracking.pushup_logs',
         )
     }
 )
