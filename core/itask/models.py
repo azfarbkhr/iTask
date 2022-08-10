@@ -192,7 +192,7 @@ class contributors_performance_scores(models.Model):
     contributor_id = models.ForeignKey(contributors, on_delete=models.CASCADE)
     date = models.DateTimeField(default=now)
     activity_id = models.ForeignKey(activities, on_delete=models.CASCADE)
-    remarks = models.CharField(max_length=255)
+    remarks = models.CharField(max_length=255, null=True, blank=True)
     score = models.FloatField()
     status = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)
@@ -267,3 +267,19 @@ class default_interview_questions(models.Model):
     class Meta:
         verbose_name_plural = "Default Interview Questions"
         verbose_name = "Default Interview Question"
+
+
+class routines(models.Model):
+    activity = models.ForeignKey(activities, on_delete=models.CASCADE)
+    routine_details = models.CharField(max_length=255, null=True, blank=True)
+    reference = models.CharField(max_length=255, null=True, blank=True)
+    status = models.BooleanField(default=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    last_update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.routine_details
+    
+    class Meta:
+        verbose_name_plural = "Routines"
+        verbose_name = "Routine"

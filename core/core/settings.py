@@ -146,7 +146,8 @@ ADMIN_REORDER = (
             'itask.tasks', 
             'itask.meetings', 
             'itask.contributors_performance_scores', 
-            'itask.interview_notes'
+            'itask.interview_notes',
+            'itask.routines'
         )
     },
     {

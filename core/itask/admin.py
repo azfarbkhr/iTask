@@ -1,6 +1,6 @@
 from urllib import response
 from django.contrib import admin
-from .models import contributors, clients, projects, activities, completion_statuses, priorities, tasks, point_types, meetings, meetings_attendees, meetings_points, contributors_performance_scores, interview_notes, interview_questions, default_interview_questions
+from .models import contributors, clients, projects, activities, completion_statuses, priorities, tasks, point_types, meetings, meetings_attendees, meetings_points, contributors_performance_scores, interview_notes, interview_questions, default_interview_questions, routines
 from datetime import datetime
 from django.http import HttpResponse
 
@@ -235,3 +235,22 @@ admin.site.register(interview_notes, interview_header,
     actions = [download_notes]
 
 )
+
+
+admin.site.register(routines, 
+    list_display=['activity', 'routine_details', 'reference', 'status', 'last_update_date'],
+    list_display_links = ['routine_details'],
+    list_editable=['activity', 'reference', 'status'],
+    list_filter=['activity', 'status', 'last_update_date'],
+    search_fields=['activity', 'routine_details', 'reference'],
+    ordering=['id'],
+
+)
+
+
+    #     activity = models.ForeignKey(activities, on_delete=models.CASCADE)
+    # routine_details = models.CharField(max_length=255, null=True, blank=True)
+    # reference = models.CharField(max_length=255, null=True, blank=True)
+    # status = models.BooleanField(default=True)
+    # creation_date = models.DateTimeField(auto_now_add=True)
+    # last_update_date = models.DateTimeField(auto_now=True)
