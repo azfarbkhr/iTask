@@ -283,3 +283,18 @@ class routines(models.Model):
     class Meta:
         verbose_name_plural = "Routines"
         verbose_name = "Routine"
+
+class daily_routine_tasks(models.Model):
+    activity = models.ForeignKey(activities, on_delete=models.CASCADE)
+    routine_details = models.CharField(max_length=255, null=True, blank=True)
+    reference = models.CharField(max_length=255, null=True, blank=True)
+    status = models.BooleanField(default=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    last_update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.routine_details
+    
+    class Meta:
+        verbose_name_plural = "Temptable"
+        verbose_name = "Temptable"
